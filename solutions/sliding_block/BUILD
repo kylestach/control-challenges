@@ -13,3 +13,10 @@ cc_library(
   hdrs = ['no_friction.h'],
   deps = ['//third_party/unitscpp']
 )
+
+cc_library(
+  name = 'controller_goal',
+  srcs = ['goal.cpp'],
+  hdrs = ['goal.h'],
+  deps = ['//third_party/unitscpp']
+)
