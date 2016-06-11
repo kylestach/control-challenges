@@ -10,8 +10,26 @@ Visualization::Visualization(std::string name, sf::VideoMode mode)
 void Visualization::Render() {
   window_.clear();
   Draw(window_);
+
+  if (is_complete()) {
+    sf::Text text(
+        "Finished in " + std::to_string(total_time_.asSeconds()) + "s",
+        dashboard_font_);
+    text.setCharacterSize(50);
+    text.setOrigin(text.getLocalBounds().width / 2,
+                   text.getLocalBounds().height / 2);
+    text.setPosition(window_.getSize().x / 2, 2 * window_.getSize().y / 3);
+    text.setColor(sf::Color::Green);
+    text.setStyle(sf::Text::Bold);
+    window_.draw(text);
+  }
+
   window_.display();
 
+  dashboard_strings_["time"] =
+      std::to_string(
+          (is_complete() ? total_time_ : timer_.getElapsedTime()).asSeconds()) +
+      "s";
   dashboard_.clear();
   DrawDashboard(dashboard_);
   dashboard_.display();
@@ -23,6 +41,12 @@ void Visualization::Render() {
 }
 
 bool Visualization::is_open() { return window_.isOpen(); }
+bool Visualization::is_complete() { return finished_; }
+
+void Visualization::Complete() {
+  if (!is_complete()) total_time_ = timer_.getElapsedTime();
+  finished_ = true;
+}
 
 void Visualization::DrawDashboard(sf::RenderTarget& dashboard) const {
   sf::Text text;

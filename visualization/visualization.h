@@ -11,6 +11,9 @@ class Visualization {
   void Render();
 
   bool is_open();
+  bool is_complete();
+
+  void Complete();
 
  protected:
   // Draw should be overridden by a subclass and should draw the visualization
@@ -28,6 +31,11 @@ class Visualization {
   void DrawDashboard(sf::RenderTarget& target) const;
 
   sf::Font dashboard_font_;
+
+  bool finished_{false};
+
+  sf::Clock timer_;
+  sf::Time total_time_;
 };
 
 } /* frc1678 */
