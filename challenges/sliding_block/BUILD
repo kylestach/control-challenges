@@ -18,3 +18,9 @@ cc_binary(
   srcs = ['simple.cpp'],
   deps = [':visualization', ':sliding_block', '//solutions/sliding_block:controller_simple']
 )
+
+cc_binary(
+  name = 'challenge_no_friction',
+  srcs = ['no_friction.cpp'],
+  deps = [':visualization', ':sliding_block', '//solutions/sliding_block:controller_no_friction']
+)
