@@ -7,4 +7,5 @@ To get started:
  * Install [bazel](https://www.bazel.io)
  * Write controller code in `solutions`. The controllers have been stubbed out for you - all you have to do is implement
    them!
- * Run a challenge with `bazel run //challenges:<challenge-name>`
+ * Run a challenge with `bazel run //challenges/<challenge-type>:<challenge>` (i.e. `bazel run
+   //challenges/sliding_block:simple`)
