@@ -17,5 +17,6 @@ genrule(
 
 py_binary(
   name = 'gen',
-  srcs = ['gen.py']
+  srcs = ['gen.py'],
+  default_python_version = "PY3"
 )

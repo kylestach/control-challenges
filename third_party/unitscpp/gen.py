@@ -33,7 +33,6 @@ DEALINGS IN THE SOFTWARE.
 '''
 
 import sys, getopt, os
-from string import join
 
 out = sys.stdout.write
 err = sys.stderr.write
@@ -819,23 +818,25 @@ class U:
     def __init__(me, d):
         me.d = tuple(d)
     def __repr__(me):
-        return "%s," % join(["%d" % int(i) for i in me.d], ",")
+        return "%s," % ",".join(["%d" % int(i) for i in me.d])
     def __mul__(me, b):
-        return U([me.d[i] + b.d[i] for i in xrange(len(me.d))])
+        return U([me.d[i] + b.d[i] for i in range(len(me.d))])
     def __div__(me, b):
-        return U([me.d[i] - b.d[i] for i in xrange(len(me.d))])
+        return U([me.d[i] - b.d[i] for i in range(len(me.d))])
+    def __truediv__(me, b):
+        return U([me.d[i] - b.d[i] for i in range(len(me.d))])
     def __pow__(me, b):
-        if (type(b) != type(0)) and (type(b) != type(0L)):
-            raise TypeError("Bad exponent:  " + `b`)
+        if (type(b) != type(0)) and (type(b) != type(0)):
+            raise TypeError("Bad exponent:  " + repr(b))
         if b == 0: return U([0]*len(me.d))
         if b == 1:  return x
         if b < 0:
             x = U([-i for i in me.d])
             if b == -1:  return x
-            for i in xrange(abs(b)-1): x /= me
+            for i in range(abs(b)-1): x /= me
         else:
             x = U(me.d)
-            for i in xrange(b-1): x *= me
+            for i in range(b-1): x *= me
         return x
 
 def ParseCommandLine():
@@ -845,7 +846,7 @@ def ParseCommandLine():
         sys.exit(0)
     try:
         optlist, args = getopt.getopt(sys.argv[1:], "es")
-    except getopt.error, str:
+    except getopt.error as str:
         err(str)
         sys.exit(1)
     for opt in optlist:
@@ -873,7 +874,7 @@ def ReadConfigFile(config_file):
 
 def RemoveComments(lines):
     # Remove comments and empty lines by reading backwards through the file
-    for ix in xrange(len(lines)-1, -1, -1):
+    for ix in range(len(lines)-1, -1, -1):
         if not lines[ix].strip():
             del lines[ix]
             continue
@@ -975,7 +976,7 @@ def CheckData():
     # Form is Unit = Length
     units = {}
     for name in output_strings[fundamental]:
-        if units.has_key(name):
+        if name in units:
             err("Error:  '%s' is a duplicated fundamental unit%s" % (name, nl))
             sys.exit(1)
         else:
@@ -985,7 +986,7 @@ def CheckData():
     units = {}
     for item in output_strings[derived]:
         type, name = Split(item, "=")
-        if units.has_key(type):
+        if type in units:
             err("Error:  '%s' is a duplicated derived unit%s" % (type, nl))
             sys.exit(1)
         else:
@@ -1005,7 +1006,7 @@ def CheckData():
             key = items[2]
         else:
             key = items[1]
-        if units.has_key(key):
+        if key in units:
             err("Error:  '%s' is a duplicated constant%s" % (key, nl))
             sys.exit(1)
         else:
@@ -1026,13 +1027,13 @@ def MakeMap():
 
 def MakeTemplateParameters():
     def f(s, number_of_dimensions):
-        string = range(1, number_of_dimensions + 1)
+        string = list(range(1, number_of_dimensions + 1))
         string = [s % i for i in string]
-        return join(string, ", ")
+        return ", ".join(string)
     def g(s, number_of_dimensions):
-        string = range(1, number_of_dimensions + 1)
+        string = list(range(1, number_of_dimensions + 1))
         string = [s % (i, i) for i in string]
-        return join(string, ", ")
+        return ", ".join(string)
     global output_strings
     number_of_dimensions = len(output_strings[fundamental])
     d = {}
@@ -1053,17 +1054,17 @@ def BuildNeededStrings():
     global output_strings
     # String for dumping unit's dimensions
     number_of_dimensions = len(output_strings[fundamental])
-    string = range(1, number_of_dimensions)
+    string = list(range(1, number_of_dimensions))
     string = ["<< U%d << \",\"" % i for i in string]
     string.append("<< U%d" % number_of_dimensions)
-    s = unit_marker_begin + join(string) + " << " + unit_marker_end
+    s = unit_marker_begin + "".join(string) + " << " + unit_marker_end
     output_strings[outstream] = s
     # Build typedefs
     s = ""
     ns = output_strings[units_namespace]
     n = len(output_strings[fundamental])
     names_to_pos = {}  # Map dimension names to position for derived typedefs
-    for ix in xrange(n):
+    for ix in range(n):
         name = output_strings[fundamental][ix]
         tp = repr(output_strings[Units][name])
         if tp[-1] == ",": 
@@ -1146,7 +1147,7 @@ def ConstructFundamentalUnits():
     global output_strings
     n = len(output_strings[fundamental])
     d = {}  # Dictionary for our fundamental objects
-    for ix in xrange(n):
+    for ix in range(n):
         name = output_strings[fundamental][ix]
         t = [0]*n
         t[ix] = 1
@@ -1195,10 +1196,11 @@ def ConstructDerivedUnits():
     # Now evaluate the derived expressions
     n = len(output_strings[derived])
     d = output_strings[Units]  # Fundamental units are already here
-    one = U([0]*num_fund)      # Allow things like '1/Length'
-    for ix in xrange(n):
+    one = U([0 for _ in range(num_fund)])      # Allow things like '1/Length'
+
+    for ix in range(n):
         name, expression = Split(output_strings[derived][ix], "=")
-        if d.has_key(name):
+        if name in d:
             err("Derived unit '%s' is already the name of a unit.%s" % 
                 (name, nl))
             sys.exit(1)
@@ -1208,8 +1210,7 @@ def ConstructDerivedUnits():
         s = s.replace("1", "one")  # Allow things line '1/Length'
         s = s.replace("^", "**")   # Let's '^' be used for exponentiation
         try:
-            c = compile(s, "", "eval")
-            result = eval(c)
+            result = eval(s, locals())
         except:
             err("Derived unit '%s' not a valid expression.%s" % (name, nl))
             sys.exit(1)
