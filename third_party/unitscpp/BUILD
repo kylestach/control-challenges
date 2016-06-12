@@ -3,13 +3,19 @@ licenses(["permissive"])
 cc_library(
   name = 'unitscpp',
   srcs = [],
-  hdrs = [':units_autogen'],
+  hdrs = [':generate_header'],
   visibility = ["//visibility:public"],
 )
 
 genrule(
-  name = 'units_autogen',
-  srcs = ['units.cfg', 'gen.py'],
-  cmd = 'python2 third_party/unitscpp/gen.py third_party/unitscpp/units.cfg > $@',
+  name = 'generate_header',
+  srcs = ['units.cfg'],
+  cmd = '$(location :gen) $(location :units.cfg) > $@',
+  tools = [':gen'],
   outs = ['unitscpp.h']
+)
+
+py_binary(
+  name = 'gen',
+  srcs = ['gen.py']
 )
