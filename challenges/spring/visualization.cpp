@@ -24,7 +24,7 @@ void SpringVisualization::Draw(sf::RenderTarget& target) const {
   // Draw the block
   sf::RectangleShape block(
       sf::Vector2f(block_size.to(pixel), block_size.to(pixel)));
-  // Draw the block relative to it's bottom center
+  // Draw the block relative to its bottom center
   block.setOrigin(block_size.to(pixel) / 2, block_size.to(pixel));
   block.setPosition(center + sf::Vector2f(state_.position.to(pixel), 0));
   target.draw(block);
