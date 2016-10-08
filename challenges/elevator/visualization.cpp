@@ -23,5 +23,16 @@ void ElevatorVisualization::Draw(sf::RenderTarget& target) const {
 
   elevator.setOrigin(elevator_size.to(pixel) / 2, elevator_size.to(pixel));
   elevator.setPosition(center + sf::Vector2f(0, state_.position.to(pixel)));
+
+  sf::RectangleShape side(
+      sf::Vector2f(elevator_size.to(pixel), (2 * m).to(pixel)));
+  side.setFillColor(sf::Color::Black);
+  side.setOutlineColor(sf::Color::White);
+  side.setOutlineThickness(5);
+
+  side.setOrigin(0, 0);
+  side.setPosition(center + sf::Vector2f(-15, -300));
+
+  target.draw(side);
   target.draw(elevator);
 }
